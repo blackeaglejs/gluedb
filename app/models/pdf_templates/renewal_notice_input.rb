@@ -10,7 +10,9 @@ module PdfTemplates
     attribute :tax_household, Array[PdfTemplates::RenewalEnrollee]
 
     attribute :health_policy, String
+    attribute :health_plan_current, String
     attribute :dental_policy, String
+    attribute :dental_plan_current, String
 
     attribute :health_plan_name, String
     attribute :dental_plan_name, String
@@ -28,7 +30,13 @@ module PdfTemplates
         primary_identifier,
         primary_address.to_s,
         health_policy,
+        health_plan_current,
+        health_plan_name,
+        health_premium,
         dental_policy,
+        dental_plan_current,
+        dental_plan_name,
+        dental_premium
       ] + tax_household.map{|renewal_enrollee| renewal_enrollee.to_csv }.flatten
     end
   end

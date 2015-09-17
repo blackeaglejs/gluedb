@@ -1,7 +1,8 @@
 module Generators::Reports  
   class RenewalNoticeInputBuilder
 
-    def process(policies)
+    def process(policies, carriers = {})
+      @carriers = carriers
       health, dental = policies
       base_policy = health || dental
 
@@ -12,19 +13,21 @@ module Generators::Reports
       primary = base_policy.subscriber.person
       return if primary.mailing_address.blank?
 
-      members = base_policy.enrollees_sans_subscriber.map{|enrollee| enrollee.person.name_full}
+      # members = base_policy.enrollees_sans_subscriber.map{|enrollee| enrollee.person.name_full}
 
       notice = PdfTemplates::RenewalNoticeInput.new
-      notice.covered_individuals = members
+      # notice.covered_individuals = members
       notice.primary_name = primary.name_full
       notice.primary_identifier = primary.authority_member.hbx_member_id
 
       if health
         notice.health_policy = health.id
+        notice.health_plan_current = [carriers[health.plan.carrier_id], health.plan.name].join(" - ")
       end
 
       if dental
         notice.dental_policy = dental.id
+        notice.dental_plan_current = [carriers[dental.plan.carrier_id], dental.plan.name].join(" - ")
       end
 
       if primary.addresses.empty?
@@ -55,19 +58,36 @@ module Generators::Reports
 
     def append_health_policy(health_policy, notice)
       renewal_policy = health_policy.clone_for_renewal(Date.new(2016, 1, 1))
-      pc = ::Premiums::PolicyCalculator.new
-      pc.apply_calculations(renewal_policy)
-      notice.health_plan_name = renewal_policy.plan.name
-      notice.health_premium = renewal_policy.pre_amt_tot
+      if @carriers[renewal_policy.plan.carrier_id]
+        notice.health_plan_name = @carriers[renewal_policy.plan.carrier_id] + renewal_policy.plan.name
+      else
+        notice.health_plan_name = "Carrier missing -" + renewal_policy.plan.name
+      end
+      begin
+        pc = ::Premiums::PolicyCalculator.new
+        pc.apply_calculations(renewal_policy)
+        notice.health_premium = renewal_policy.pre_amt_tot
+      rescue
+        notice.health_premium = 0
+      end
       notice
     end
 
     def append_dental_policy(dental_policy, notice)
       renewal_policy = dental_policy.clone_for_renewal(Date.new(2016, 1, 1))
-      pc = ::Premiums::PolicyCalculator.new
-      pc.apply_calculations(renewal_policy)
-      notice.dental_plan_name = renewal_policy.plan.name
-      notice.dental_premium = renewal_policy.pre_amt_tot
+      if @carriers[renewal_policy.plan.carrier_id]
+        notice.dental_plan_name = @carriers[renewal_policy.plan.carrier_id] + renewal_policy.plan.name
+      else
+        notice.health_plan_name = "Carrier missing -" + renewal_policy.plan.name
+      end
+      binding.pry
+      begin
+        pc = ::Premiums::PolicyCalculator.new
+        pc.apply_calculations(renewal_policy)
+        notice.dental_premium = renewal_policy.pre_amt_tot
+      rescue
+        notice.dental_premium = 0
+      end
       # if @type == 'qhp'
       #   notice.dental_aptc = dental.applied_aptc
       #   notice.dental_responsible_amt = dental.tot_res_amt
