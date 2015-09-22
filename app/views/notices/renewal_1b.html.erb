@@ -43,7 +43,7 @@
 <table class="total_table" border="0">
   <tbody>
     <tr>
-       <td><ul style="list-style: circle solid;"><li style="margin-top: 10px;"><strong>Review your information:</strong> We need to make sure that the information we have about you and your household is up to date. Review the information in this notice and let us know by «Response_Date» if anything will be different next year.  </li><li style="margin-top: 10px;"><strong>Choose your 2016 plan:</strong> If you want to keep your current health insurance plan, you don’t need to re-enroll. We will renew your coverage in the same plan or a similar one for 2016. If you want to consider selecting a different health plan for 2016, you will have an opportunity to do so once open enrollment for 2016 starts on November 1, 2015.  </li><li style="margin-top: 10px;"><strong>Pay your premiums:</strong> You must continue to pay your premiums for your 2015 plan on time each month in order to have your coverage renewed for 2016. If you pay health insurance or dental premiums through an auto-payment plan, you must update the amount you pay to cover your 2016 plan premium(s).  Failure to update your autopay amounts could result in the carrier terminating your coverage in 2016. If you have any questions about autopay, please call your health insurance or dental insurance company.</li></ul></td>
+       <td><ul style="list-style: circle solid;"><li style="margin-top: 10px;"><strong>Review your information:</strong> We need to make sure that the information we have about you and your household is up to date. Review the information in this notice and let us know by <%= 35.days.from_now.strftime('%m/%d/%Y') %> if anything will be different next year.  </li><li style="margin-top: 10px;"><strong>Choose your 2016 plan:</strong> If you want to keep your current health insurance plan, you don’t need to re-enroll. We will renew your coverage in the same plan or a similar one for 2016. If you want to consider selecting a different health plan for 2016, you will have an opportunity to do so once open enrollment for 2016 starts on November 1, 2015.  </li><li style="margin-top: 10px;"><strong>Pay your premiums:</strong> You must continue to pay your premiums for your 2015 plan on time each month in order to have your coverage renewed for 2016. If you pay health insurance or dental premiums through an auto-payment plan, you must update the amount you pay to cover your 2016 plan premium(s).  Failure to update your autopay amounts could result in the carrier terminating your coverage in 2016. If you have any questions about autopay, please call your health insurance or dental insurance company.</li></ul></td>
       </tr>
     <tr>
       <td>
@@ -74,7 +74,7 @@
       <td><h2 style="color:rgb(54,95,145);">Review Your Information</h2></td>
     </tr>
     <tr>
-    <td>It is very important that you provide updated 2016 information for your entire tax household, which includes your spouse and tax dependents, even if they are not enrolled in coverage through DC Health Link to make sure that you receive the correct amount of help paying for coverage.</td>
+    <td>It is very important that you provide updated 2016 information for your entire tax household, which includes your spouse and tax dependents, even if they are not enrolled in coverage through DC Health Link to make sure that our records are correct.</td>
     </tr>
     <tr>
     </tr>
@@ -111,7 +111,7 @@
   <tbody>
     <tr class="mar20 fssizeuser">
       <td>
-        <strong>If any of this information is incorrect, or if you need to add or remove anyone from your household please let us know by «Response_Date».</strong> You can report any changes by calling DC Health Link Customer Service at 1-855-532-5465 and telling the customer service representative that you want to make changes to the information used for your 2016 renewal.
+        <strong>If any of this information is incorrect, or if you need to add or remove anyone from your household please let us know by <%= 35.days.from_now.strftime('%m/%d/%Y') %>.</strong> You can report any changes by calling DC Health Link Customer Service at 1-855-532-5465 and telling the customer service representative that you want to make changes to the information used for your 2016 renewal.
       </td>
     </tr>   
   </tbody>
@@ -248,7 +248,7 @@
       <td><h2 style="color:rgb(54,95,145);">Your Secure User Account</h2></td>
     </tr>
 <tr>
-      <td style="padding-right: 2px;">Important information is stored in your account on the DC Health Link website.  If you don’t have an account already, you can create one by going to www.DCHealthLink.com. You can get help with logging in or creating an account by calling DC Health Link Customer Service toll-free at 1-855-532-5465.</td>
+      <td style="padding-right: 5px;">Important information is stored in your account on the DC Health Link website.  If you don’t have an account already, you can create one by going to www.DCHealthLink.com. You can get help with logging in or creating an account by calling DC Health Link Customer Service toll-free at 1-855-532-5465.</td>
     </tr>
      </tbody>
      </table>
