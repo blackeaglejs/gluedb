@@ -1,0 +1,263 @@
+<div class="page_break">
+<table class="total_table" border="0">
+  <tbody>
+  <tr><td></br></br></td></tr>
+    <tr>
+      <td colspan="2" align="center"><a href=
+                                    "https://dchealthlink.com/"
+                                    target=
+                                    "_blank">
+                                    <%= image_tag "#{Rails.root}/app/assets/images/dchealthlink.jpg", style: "height: auto; vertical-align: top;", width: "250"  %>
+                                  </a></td>
+    </tr>
+  </tbody>
+</table>
+<table class="total_table" border="0">
+  <tbody>
+  <tr>
+  <td></br></br></td>
+  </tr>
+    <tr class="wid50">
+      <td align="left"><%= Date.today.strftime('%m/%d/%Y') %></td>
+    </tr>
+    <tr>
+  <td></td>
+  </tr>
+  </tbody>
+</table>
+<%= render partial: "notices/ivl/inner_address", :locals => {notice: notice} %>
+<table class="total_table" border="0">
+  <tbody>
+    <tr>
+      <td><h3>Subject: DC Health Link Plan Year 2016 Open Enrollment & Preliminary Renewal Notice</h3></td>
+    </tr>
+  </tbody>
+</table>
+<table class="total_table" border="0">
+  <tbody>
+    <tr>
+      <td>DC Health Link has started the process of renewing your health insurance for the 2016 plan year, which begins on January 1, 2016.  This process has three steps:  </td>
+    </tr>
+  </tbody>
+</table>
+<table class="total_table" border="0">
+  <tbody>
+    <tr>
+       <td><ul style="list-style: circle solid;"><li style="margin-top: 10px;"><strong>Review your information:</strong> We need to make sure that the information we have about you and your household is up to date. Please review the information in this notice. If anything will be different next year, let us know by October 15 so that we can make sure your account is updated in time for the start of open enrollment.</li><li style="margin-top: 10px;"><strong>Choose your 2016 plan:</strong> Aetna is only offering small group coverage through DC Health Link and will no longer be offering health plans for individuals and families.  Your Aetna coverage will end.  Please go to DC Health Link to compare available plans.  You must pick a plan by December 15, 2015 to have coverage effective January 1, 2016.</li><li style="margin-top: 10px;"><strong>Pay your premiums:</strong> Please continue to pay your premiums for your 2015 plan on time each month to continue your Aetna plan through the end of 2015.  In addition, if you have a dental plan, you must continue to pay your monthly premiums in order to have your dental coverage automatically renewed for 2016. If you have autopay with your dental insurance company, the insurer will not automatically update the autopay.  You have to update the amount of the auto-payment plan with your dental company for your 2016 plan(s) so you have coverage in 2016.</li></ul></td>
+      </tr>
+    <tr>
+      <td>
+        The rest of this notice has important information about each of these steps.
+      </td>
+    </tr>   
+  </tbody>
+</table>
+<div style="display:block; page-break-inside: avoid;">
+<table class="total_table" border="0">
+  <tbody>
+    <tr>
+    <td></br></td>
+    </tr>
+  <tr>
+      <td><h2 style="color:rgb(54,95,145);">Review Your Information</h2></td>
+    </tr>
+    <tr>
+    <td>It is very important that you provide updated 2016 information for your entire tax household, which includes your spouse and tax dependents, even if they are not enrolled in coverage through DC Health Link to make sure that our records are correct.</td>
+    </tr>
+    <tr>
+    </tr>
+  </tbody>
+  </table>
+</div>
+</div>
+<div style="margin: 10px 0; font-size: 12px;">This is the most up to date information we have for you and other members of your household:</div>
+<div class="page_break">
+  <% 1.times do |i| %>
+  <% notice.tax_household.each do |household_member| %>
+  <div style="display:block; page-break-inside: avoid;">
+  <table class="total_table household_member_details" border="1">
+  <tbody>
+      <th colspan="2" style="width:100%; text-align:left; background-color:rgb(198,217,241); padding:0 10px;"><b><%= household_member.full_name %></b></th>
+  <tr>
+    <td style="width: 45%;">State of Residency</td>
+    <td><%= household_member.residency %></td>
+    </tr>
+    <tr>
+    <td style="width: 45%;">Citizenship/Lawful Presence</td>
+    <td><%= household_member.citizenship_status %></td>
+    </tr>
+    <tr>
+    <td style="width: 45%;">Incarcerated</td>
+    <td><%= household_member.incarcerated %></td>
+    </tr>
+  </tbody>
+  </table>
+  </div>
+  <% end %>
+  <% end %>
+  <div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0">
+  <tbody>
+    <tr class="mar20 fssizeuser">
+      <td>
+        <strong>If any of this information is incorrect, or if you need to add or remove anyone from your household letting us know by October 15 will help us make sure that your account is updated in time for the start of open enrollment.</strong> You can report any changes by calling DC Health Link Customer Service at 1-855-532-5465 and telling the customer service representative that you want to make changes to the information used for your coverage.
+      </td>
+    </tr>
+  </tbody>
+  </table>
+  </div>
+  </div>
+  
+  <div class="page_break">
+
+ <div style="display:block; page-break-inside: avoid;">
+<table class="total_table" border="0">
+  <tbody>
+  <tr>
+      <td><h2 style="color:rgb(54,95,145);">Choose Your 2016 Plan</h2></td>
+    </tr>
+    <tr>
+      <td><div style="font-size: 13px; font-weight: bold;">Health Plan</div></td>
+    </tr>
+    <tr class="mar20 fssizeuser">
+    <td>Open enrollment for 2016 starts on November 1. Beginning November 1, you can log into your account on <a href="www.dchealthlink.com">www.DCHealthLink.com</a> to pick a new plan for 2016. An insert included with this notice lists all the plans in the same metal level (e.g. bronze, silver, gold, platinum) as your current plan that will be available in 2016. Once open enrollment starts, there will also be new tools available on the DC Health Link website to help you compare plans and find the best plan for you.  DC Health Link Doctor Directory and DC Health Link Plan Match are two new tools to help compare plans, features, and costs.</td>
+    </tr>
+</tbody>
+  </table> 
+</div>   
+<table class="total_table" border="0">
+  <tbody>
+    <tr class="mar20 fssizeuser">
+      <td><strong>You must pick a new health plan by December 15 if you want coverage that starts on January 1, 2016.</strong></td>
+    </tr>
+  </tbody>
+  </table>
+
+<% if !notice.dental_plan_name.blank? %>
+  <div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0" style="margin-top: 10px;">
+  <tbody>
+    <tr>
+      <td><div style="font-size: 13px; font-weight: bold;">Dental Plan</div></td>
+    </tr>
+    <tr>
+      <td style="padding-top: 15px;" colspan="2"><span style="text-decoration: underline; font-size: 13px;">Dental Plan:  <span><%= notice.dental_plan_name %></span></span></td>
+    </tr>
+    <tr>
+      <td style="float:left; vertical-align:top; padding-top: 10px; width: 50%;" colspan="1">
+        <div style="margin-left: 35px;"><strong>Total Monthly Premium Cost: </strong></div>
+      </td>
+      <td style="vertical-align:top; padding-top: 10px;float: left;" colspan="1">
+        <div style="float:right; padding-right: 150px;"><strong><%= number_to_currency(notice.dental_premium) %></strong></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0" style="margin-top: 10px;">
+  <tbody>
+    <tr class="mar20 fssizeuser">
+      <td><strong>If you are satisfied with this dental plan, you do not need to do anything during open enrollment but continue to pay your monthly premiums for your dental plan. We will automatically renew your coverage in this plan for 2016.</strong></td>
+    </tr>
+     </tbody>
+     </table>
+</div>
+<% end %>
+
+     <div style="display:block; page-break-inside: avoid;">
+
+      <table class="total_table" border="0">
+  <tbody>
+  <tr>
+      <td><h2 style="color:rgb(54,95,145);">Pay Your Premiums</h2></td>
+    </tr>
+<tr>
+      <td>You must continue to pay your premiums for your 2015 plan on time each month in order to continue your Aetna plan through the end of 2015.</td>
+    </tr>
+    <tr><td></td></tr>
+    <% if !notice.dental_plan_name.blank? %>
+
+    <tr class="mar20 fssizeuser">
+      <td>You must continue to pay your premium for your 2015 dental plan to be renewed for 2016. <strong>If you miss a payment or do not pay the full amount each month, your coverage will not be automatically renewed.</strong> If you believe your 2015 plan has been terminated and you want to enroll in a dental plan for 2016, please call DC Health Link Customer Service at 1-855-532-5465.</td>
+    </tr>
+    <% end %>
+      </tbody>
+     </table>
+   </div>
+
+<div style="display:block; page-break-inside: avoid;">
+           <table class="total_table" border="0">
+  <tbody>
+  <tr>
+      <td><h2 style="color:rgb(54,95,145);">Your Secure User Account</h2></td>
+    </tr>
+<tr class="fssizeuser">
+      <td style="padding-right: 5px;">Important information is stored in your account on the DC Health Link website.  If you don’t have an account already, you can create one by going to <a href="www.dchealthlink.com">www.DCHealthLink.com</a>. You can get help with logging in or creating an account by calling DC Health Link Customer Service toll-free at 1-855-532-5465.</td>
+    </tr>
+     </tbody>
+     </table>
+     </div>
+  </div>
+<div class="page-break-before">
+  <table class="total_table" border="0">
+  <tbody>
+  <tr><td></br></br></td></tr>
+    <tr>
+      <td colspan="2" align="center"><a href=
+                                    "https://dchealthlink.com/"
+                                    target=
+                                    "_blank">
+                                    <%= image_tag "#{Rails.root}/app/assets/images/dchealthlink.jpg", style: "height: auto; vertical-align: top;", width: "200"  %>
+                                  </a></td>
+    </tr>
+  </tbody>
+</table>
+
+
+      <table class="total_table" border="0">
+  <tbody>
+  <tr>
+    <td><h2 style="text-align: center;">DC Health Link [Metal] Level Plan Options for 2016</h2></td>
+    </tr>
+    <tr class="mar20 fssizeuser">
+      <td>Your current Aetna health plan is a [metal] level plan. This table lists all the [metal] level plans that will be offered on DC Health Link in 2016 and how much each plan would cost your family if you enroll all the same people in 2016.</td>
+    </tr>
+    <tr class="mar20 fssizeuser">
+      <td>Once open enrollment starts on November 1, you will be able to compare these and other metal level plans at <a href="www.dchealthlink.com">www.DCHealthLink.com</a>.  A broker can also provide you with free help finding the best plan for you. If you do not have a broker already, you can find one by going to <a href="www.dchealthlink.com">www.DCHealthLink.com</a> or by call DC Health Link Customer Service at 1-855-532-5465.</td>
+    </tr>
+
+      </tbody>
+     </table>
+
+  <div style="display:block;">
+  <table class="total_table household_member_details" border="1">
+  <tbody>
+      <tr colspan="2" style="text-align:left; padding:0 10px;">
+        <td style="width: 50%;"><strong>Plan Name</strong></td>
+        <td style="width: 30%;"><strong>Health Insurance Company</strong></td>
+        <td style="width: 20%;"><strong>Monthly Premium</strong></td>
+      </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+
+  </tbody>
+  </table>
+</div>
+
+    <table class="total_table" border="0">
+    <tbody>
+    <tr class="mar20 fssizeuser">
+      <td>Remember, you must pick a new health plan by December 15 to have your new health plan start on January 1, 2016.</td>
+    </tr>
+    </tbody>
+    </table>
+
+
+</div>
+
+
