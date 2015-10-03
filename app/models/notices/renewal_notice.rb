@@ -3,16 +3,19 @@ module Notices
 
     def initialize(args = {})
       super
-      @template = "notices/renewal_1b.html.erb"
+      @template = "notices/renewal_1b_atena.html.erb"
+      @atena_notice = args[:atena] || false
     end
 
-    def process
+    def render_notice
       generate_pdf_notice
+      attach_metal_plans if @atena_notice
       attach_blank_page
       attach_voter_registration
       generate_envelope
       prepend_envelope
-      save_html
+      @notice = nil
+      # save_html
     end
   end
 end

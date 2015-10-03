@@ -1,0 +1,60 @@
+<div>
+  <table class="total_table" border="0">
+    <tbody>
+      <tr><td></br></br></td></tr>
+      <tr>
+        <td colspan="2" align="center"><a href=
+          "https://dchealthlink.com/"
+          target=
+          "_blank">
+          <%= image_tag "#{Rails.root}/app/assets/images/dchealthlink.jpg", style: "height: auto; vertical-align: top;", width: "200"  %>
+        </a></td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <table class="total_table" border="0">
+    <tbody>
+      <tr>
+        <td><h2 style="text-align: center;">DC Health Link [Metal] Level Plan Options for 2016</h2></td>
+      </tr>
+      <tr class="mar20 fssizeuser">
+        <td>Your current Aetna health plan is a [metal] level plan. This table lists all the [metal] level plans that will be offered on DC Health Link in 2016 and how much each plan would cost your family if you enroll all the same people in 2016.</td>
+      </tr>
+      <tr class="mar20 fssizeuser">
+        <td>Once open enrollment starts on November 1, you will be able to compare these and other metal level plans at <a href="www.dchealthlink.com">www.DCHealthLink.com</a>.  A broker can also provide you with free help finding the best plan for you. If you do not have a broker already, you can find one by going to <a href="www.dchealthlink.com">www.DCHealthLink.com</a> or by call DC Health Link Customer Service at 1-855-532-5465.</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div style="display:block;">
+    <table id="metal_level_plans" class="total_table household_member_details">
+      <tbody>
+        <tr colspan="2" style="text-align:left; padding:0 10px;">
+          <td style="width: 50%;"><strong>Plan Name</strong></td>
+          <td style="width: 30%;"><strong>Health Insurance Company</strong></td>
+          <td style="width: 20%;"><strong>Monthly Premium</strong></td>
+        </tr>
+        <% get_metal_level_plans_with_premiums(notice.health_policy).each do |carrier, policies| %>
+        <% policies.each do |policy| %>
+        <tr colspan="2" style="page-break-inside: avoid;">
+          <td style="width: 50%;"><%= policy[0] %></td>
+          <td style="width: 30%;"><%= carrier %></td>
+          <td style="width: 20%;"><%= policy[1] %></td>
+        </tr>
+        <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <table class="total_table" border="0">
+    <tbody>
+      <tr class="mar20 fssizeuser">
+        <td>Remember, you must pick a new health plan by December 15 to have your new health plan start on January 1, 2016.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

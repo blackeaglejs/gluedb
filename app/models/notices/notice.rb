@@ -2,7 +2,7 @@ require 'prawn'
 
 module Notices
   class Notice
-    attr_accessor :from, :to, :subject, :template, :notice, :mkt_kind, :file_name
+    attr_accessor :from, :to, :subject, :template, :notice, :mkt_kind, :file_name, :notice_path
 
     def initialize(args = {})
       @template = args[:template]
@@ -13,11 +13,12 @@ module Notices
       @blank_sheet_path = Rails.root.join('lib/pdf_pages', 'blank.pdf')
       @envelope_path = Rails.root.join('pdfs', 'envelope.pdf')
       @voter_registration = Rails.root.join('lib/pdf_pages', 'voter_application.pdf')
+      @metal_plans_path = Rails.root.join('pdfs', 'metal_plans.pdf')
     end
 
-    def html
+    def html(template=nil)
       ApplicationController.new.render_to_string({ 
-        :template => @template,
+        :template => template || @template,
         :layout => 'pdf_notice_layout',
         :locals => { notice: @notice }
         })
@@ -53,7 +54,7 @@ module Notices
     end
 
     def generate_pdf_notice
-      File.open(Rails.root.join('pdfs', 'notice.pdf'), 'wb') do |file|
+      File.open(@notice_path, 'wb') do |file|
         file << self.pdf
       end
     end
@@ -81,6 +82,30 @@ module Notices
 
     def attach_voter_registration
       join_pdfs [@notice_path, @voter_registration]
+    end
+
+    def attach_metal_plans
+      generate_metal_plans
+      join_pdfs [@notice_path, @metal_plans_path]
+    end
+
+    def generate_metal_plans
+      File.open(@metal_plans_path, 'wb') do |file|
+        file << WickedPdf.new.pdf_from_string(
+          self.html("notices/metal_plans.html.erb"),
+          margin:  {  
+            top: 15,
+            bottom: 30,
+            left: 22,
+            right: 22 
+          },
+          disable_smart_shrinking: true,
+          dpi: 96,
+          page_size: 'Letter',
+          formats: :html,
+          encoding: 'utf8'
+        )
+      end
     end
 
     def generate_envelope
