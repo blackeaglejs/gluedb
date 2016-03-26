@@ -38,7 +38,7 @@ class AuditReportBuilder
       end
     end
 
-    workbook.write "#{Rails.root.to_s}/audit_report_2015.xls"
+    workbook.write "#{Rails.root.to_s}/audit_report_2014.xls"
   end
 
   private
@@ -86,6 +86,7 @@ class AuditReportBuilder
   end
 
   def valid_policy?(policy)
+    return false if policy.canceled?
     active_enrollees = policy.enrollees.reject{|en| en.canceled?}
     return false if active_enrollees.empty? || rejected_policy?(policy) || !policy.belong_to_authority_member?
     return false if policy.subscriber.coverage_end.present? && (policy.subscriber.coverage_end < policy.subscriber.coverage_start)
