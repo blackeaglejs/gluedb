@@ -11,6 +11,11 @@ FactoryGirl.define do
     plan_year_start Date.new(2014,1,2)
     plan_year_end Date.new(2014,1,2)
 
+    after(:create) do |e, evaluator|
+        create_list(:plan_year, 1, employer: e)
+        create_list(:renewal_plan_year, 1, employer: e)
+    end
+
     trait :fein_too_short do
       fein '1'
     end
