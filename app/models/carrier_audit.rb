@@ -6,12 +6,11 @@ class CarrierAudit
 	field :active_end, type: Date
 	field :cutoff_date, type: Date
 	field :market, type: String
-	field :chosen_carriers, type: Array
 
-	has_many :carriers
-	has_many :plans
-	has_many :employers
-	has_many :plan_years
-	has_many :policies
+	has_and_belongs_to_many :carriers
+
+	def select_policies
+	end
+
 end
 
