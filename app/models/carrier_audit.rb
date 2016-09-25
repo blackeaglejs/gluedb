@@ -1,11 +1,12 @@
 class CarrierAudit
 	include Mongoid::Document
-	attr_accessor :submitted_by
+	include Mongoid::Timestamps
 
 	field :active_start, type: Date
 	field :active_end, type: Date
 	field :cutoff_date, type: Date
 	field :market, type: String
+	field :submitted_by, type: String
 
 	has_and_belongs_to_many :carriers
 
