@@ -77,6 +77,7 @@ class CarrierAudit
 	  employer_ids = select_employers
 	  shop_policies = select_shop_policies(active_start,employer_ids,plan_ids)
 	  m_ids = get_member_ids(shop_policies)
+
 	  m_cache = Caches::MemberCache.new(m_ids)
 
 	  Caches::MongoidCache.allocate(Plan)
@@ -91,6 +92,7 @@ class CarrierAudit
 	  	  	subscriber_member = m_cache.lookup(subscriber_id)
 	  	  	auth_subscriber_id = subscriber_member.person.authority_member_id
 	  	  	if auth_subscriber_id == subscriber_id
+	  	  		puts policy.eg_id
 	  	  	  enrollee_list = policy.enrollees.reject { |en| en.canceled? }
 	  	  	  all_ids = enrollee_list.map(&:m_id) | [subscriber_id]
 	  	  	  out_f = File.open(File.join("audits", "#{policy._id}_audit.xml"), 'w')
@@ -135,7 +137,7 @@ class CarrierAudit
 	  	  	  	                                                   all_ids,
 	  	  	  	                                                   all_ids,
 	  	  	  	                                                   { :term_boundry => active_end,
-	  	  	  	                                                   	 :member_repo => m_cache }
+	  	  	  	                                                   	 :member_repo => m_cache })
 	  	  	  out_f.write(ser.serialize)
 	  	  	  out_f.close
 	  	  	end
