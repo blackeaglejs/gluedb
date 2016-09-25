@@ -27,6 +27,15 @@ class CarrierAudit
 	  return eligible_pols
 	end
 
+	def select_ivl_policies(active_start,plan_ids)
+	  start_date = active_start-1.day
+	  eligible_pols = pols = Policy.where({:enrollees => {"$elemMatch" => {:rel_code => "self",
+	  	                                                                   :coverage_start => {"$gt" => start_date}}}, 
+	  	                                  :employer_id => nil, 
+	  	                                  :plan_id => {"$in" => plan_ids}}).no_timeout
+	  return eligible_pols
+	end
+
 	def get_member_ids(policies)
 	  m_ids = []
 	  policies.each do |policy|
@@ -70,6 +79,10 @@ class CarrierAudit
 	  m_ids = get_member_ids(shop_policies)
 	  m_cache = Caches::MemberCache.new(m_ids)
 
+	  Caches::MongoidCache.allocate(Plan)
+	  Caches::MongoidCache.allocate(Carrier)
+	  Caches::MongoidCache.allocate(Employer)
+
 	  shop_policies.each do |policy|
 	  	if !policy.canceled?
 	  	  if !(policy.subscriber.coverage_start > active_end)
@@ -88,6 +101,41 @@ class CarrierAudit
 	  	  	  	                                                   all_ids,
 	  	  	  	                                                   { :term_boundry => active_end,
 	  	  	  	                                                   	 :member_repo => m_cache })
+	  	  	  out_f.write(ser.serialize)
+	  	  	  out_f.close
+	  	  	end
+	  	  end
+	  	end
+	  end
+	end
+
+	def generate_ivl_audits
+	  plan_ids = select_plans
+	  ivl_policies = select_ivl_policies(active_start,plan_ids)
+	  m_ids = get_member_ids(ivl_policies)
+	  m_cache = Caches::MemberCache.new(m_ids)
+
+	  Caches::MongoidCache.allocate(Plan)
+	  Caches::MongoidCache.allocate(Carrier)
+	  Caches::MongoidCache.allocate(Employer)
+
+	  ivl_policies.each do |policy|
+	  	if !policy.canceled?
+	  	  if !(policy.subscriber.coverage_start > active_end)
+	  	  	subscriber_id = policy.subscriber.m_id
+	  	  	subscriber_member = m_cache.lookup(subscriber_id)
+	  	  	auth_subscriber_id = subscriber_member.person.authority_member_id
+	  	  	if auth_subscriber_id == subscriber_id
+	  	  	  enrollee_list = policy.enrollees.reject { |en| en.canceled? }
+	  	  	  all_ids = enrollee_list.map(&:m_id) | [subscriber_id]
+	  	  	  out_f = File.open(File.join("audits", "#{policy._id}_audit.xml"), 'w')
+	  	  	  ser = CanonicalVocabulary::MaintenanceSerializer.new(policy,
+	  	  	  	                                                   "audit",
+	  	  	  	                                                   "notification_only",
+	  	  	  	                                                   all_ids,
+	  	  	  	                                                   all_ids,
+	  	  	  	                                                   { :term_boundry => active_end,
+	  	  	  	                                                   	 :member_repo => m_cache }
 	  	  	  out_f.write(ser.serialize)
 	  	  	  out_f.close
 	  	  	end
