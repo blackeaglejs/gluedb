@@ -1,7 +1,7 @@
 class CarrierAuditsController < ApplicationController
 
 	def index
-		@carrier_audits = CarrierAudit.all
+		@carrier_audits = CarrierAudit.all.page(params[:page]).per(15)
 	end
 
 	def new

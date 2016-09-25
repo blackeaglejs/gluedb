@@ -1,0 +1,42 @@
+<%- model_class = CarrierAudit -%>
+<%t '.title', :default => model_class.model_name.human.pluralize.titleize %>
+
+<div class="page-header">
+  <%= render 'shared/breadcrumb', crumbs: ['Carrier Audits'] %>
+</div>
+
+<div align="right">
+  <%= link_to "Generate New Audits", new_carrier_audit_path, :class => "btn btn-primary" %>
+</div>
+
+<br>
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>Cutoff</th>
+      <th>Submitted By</th>
+      <th>Submitted On</th>
+      <th>Market</th>
+      <th>Carriers</th>
+	</tr>
+  </thead>
+  <% @carrier_audits.each do |carrier_audit| %>
+    <tr>
+      <td><%= carrier_audit.cutoff_date %></td>
+      <td><%= carrier_audit.submitted_by %></td>
+      <td><%= carrier_audit.created_at %></td>
+      <td><%= carrier_audit.market %></td>
+      <td><%= carrier_audit.carriers.map(&:name).join(", ") %></td>
+    </tr>
+  <% end %>
+</table>
+
+<div class="row">
+  <div class="col-md-8">
+    <%= paginate @carrier_audits, theme: "twitter-bootstrap", pagination_class: "pagination-plain" %>
+  </div>
+  <div class="rol-md-4">
+    <p><%= "#{number_with_delimiter(@carrier_audits.count)} / #{number_with_delimiter(CarrierAudit.count)} " %><small>(audits / total)</small></p>
+  </div>
+</div>
