@@ -129,6 +129,8 @@ Gluedb::Application.routes.draw do
     post :calculate_premium, on: :collection
   end
 
+  resources :carrier_audits
+
   resources :plans, only: [:index, :show] do
     member do
       get :calculate_premium
