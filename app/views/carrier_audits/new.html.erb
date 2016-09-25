@@ -1,0 +1,23 @@
+<h3>Carrier Audit Generation</h3>
+
+<%= form_for @carrier_audit, layout: :inline do |ca| %>
+	<%= ca.label :cutoff_date %>:   
+	<%= ca.text_field :cutoff_date, as: :string,
+		start_year: Date.today.year - 110,
+		end_year: Date.today.year,
+		placeholder: "mm/dd/yyyy",
+		class: "date_picker",
+		value: ca.object.cutoff_date.try(:strftime, "%m/%d/%Y") %><br><br>
+	
+	Market: 
+	<%= ca.radio_button :market, 'individual', label: "Individual" %>
+	<%= ca.radio_button :market, 'shop', label: "SHOP" %><br><br>
+
+	Carriers:<br>
+	<% @chosen_carriers = [] %>
+	<% @carriers.each do |carrier| %>
+		<%= ca.check_box :chosen_carriers, label: carrier.name %><br>
+	<% end %>
+	<br>
+	<%= ca.submit 'Generate Audit Files' %>
+<% end %>
