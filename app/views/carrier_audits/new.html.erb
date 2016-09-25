@@ -14,9 +14,8 @@
 	<%= ca.radio_button :market, 'shop', label: "SHOP" %><br><br>
 
 	Carriers:<br>
-	<% @chosen_carriers = [] %>
 	<% @carriers.each do |carrier| %>
-		<%= ca.check_box :chosen_carriers, label: carrier.name %><br>
+		<%= check_box_tag "carrier_ids[]","#{carrier.id}" %> <%= carrier.name%><br>
 	<% end %>
 	<br>
 	<%= ca.submit 'Generate Audit Files' %>
