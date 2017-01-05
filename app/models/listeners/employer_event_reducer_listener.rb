@@ -50,7 +50,7 @@ module Listeners
     def on_message(delivery_info, properties, body)
       m_headers = (properties.headers || {}).to_hash.stringify_keys
       employer_id = m_headers["employer_id"].to_s
-      event_name = delivery_info.routing_key
+      event_name = delivery_info.routing_key.split("employer.").last
       event_time = get_timestamp(properties)
       if EmployerEvent.newest_event?(employer_id, event_name, event_time)
         r_code, resource_or_body = request_resource(employer_id)
@@ -122,9 +122,9 @@ module Listeners
       Process.setproctitle("%s - %s" % [self.name , $$])
       conn = AmqpConnectionProvider.start_connection
       chan = conn.create_channel
-      chan.prefetch(1)
       q = create_queues(chan)
       create_bindings(chan, q)
+      chan.prefetch(1)
       self.new(chan, q).subscribe(:block => true, :manual_ack => true)
       conn.close
     end
