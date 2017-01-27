@@ -36,6 +36,17 @@ module ExternalEvents
       @droppable = true
     end
 
+    def store_error_model(err_msg, err_headers)
+      EnrollmentAction::EnrollmentActionIssue.create!({
+        :hbx_enrollment_id => hbx_enrollment_id,
+        :hbx_enrollment_vocabulary => event_xml,
+        :enrollment_action_uri => enrollment_action,
+        :error_message => err_msg,
+        :headers => err_headers,
+        :received_at => timestamp
+      })
+    end
+
     def drop_if_bogus_term!
       return false unless @bogus_termination
       event_responder.broadcast_response(
@@ -44,6 +55,12 @@ module ExternalEvents
         "422",
         event_xml,
         headers
+      )
+      store_error_model(
+        "unmatched_termination",
+        headers.merge({
+          "return_status" => "422"
+        })
       )
       event_responder.ack_message(message_tag)
       instance_variables.each do |iv|
@@ -83,7 +100,32 @@ module ExternalEvents
         headers
       )
       event_responder.ack_message(message_tag)
-      # GC hint by nilling out references
+      # gc hint by nilling out references
+      instance_variables.each do |iv|
+        instance_variable_set(iv, nil)
+      end
+      true
+    end
+
+    def drop_not_yet_implemented!(action_name)
+      event_responder.broadcast_response(
+        "error",
+        "not_yet_implemented",
+        "422",
+        event_xml,
+        headers.merge({
+          :not_implented_action => action_name
+        })
+      )
+      store_error_model(
+        "not_yet_implemented",
+        headers.merge({
+          "return_status" => "422",
+          "not_implemented_action" => action_name
+        })
+      )
+      event_responder.ack_message(message_tag)
+      # gc hint by nilling out references
       instance_variables.each do |iv|
         instance_variable_set(iv, nil)
       end
@@ -220,9 +262,13 @@ module ExternalEvents
                            if determine_market(enrollment_event_xml) == "individual"
                              nil
                            else
-                             Maybe.new(policy_cv).policy.policy_enrollment.shop_market.employer_link.id.strip.split("#").last.value
+                             Maybe.new(policy_cv).policy_enrollment.shop_market.employer_link.id.strip.split("#").last.value
                            end
                          end
+    end
+
+    def is_shop?
+      !employer_hbx_id.blank?
     end
 
     def coverage_type
@@ -233,6 +279,11 @@ module ExternalEvents
       @business_process_history << entry
     end
 
+    def all_member_ids
+      @all_member_ids ||= policy_cv.enrollees.map do |en|
+        Maybe.new(en.member.id).strip.split("#").last.value
+      end
+    end
 
     # Errors stuff for ActiveModel::Errors
     def read_attribute_for_validation(attr)
@@ -248,7 +299,11 @@ module ExternalEvents
     end
 
     def existing_policy
-      @existing_policy ||= Policy.where(eg_id: hbx_enrollment_id).first
+      @existing_policy ||= Policy.where(hbx_enrollment_ids: hbx_enrollment_id).first
+    end
+
+    def existing_plan
+      @existing_plan ||= extract_plan(policy_cv)
     end
 
     private
