@@ -9,7 +9,11 @@ module EnrollmentAction
     def persist
       if termination.existing_policy
         policy_to_term = termination.existing_policy
-        return policy_to_term.terminate_as_of(termination.subscriber_end)
+        begin
+          return policy_to_term.terminate_as_of(termination.subscriber_end)
+        rescue Exception=>e
+          enrollment_action_logger.write(e)
+        end
       end
       true
     end
@@ -27,5 +31,10 @@ module EnrollmentAction
       amqp_connection = termination.event_responder.connection
       publish_edi(amqp_connection, action_helper.to_xml, termination.hbx_enrollment_id, termination.employer_hbx_id)
     end
+
+    def enrollment_action_logger
+      Logger.new("#{Rails.root}/log/enrollment_action_errors_#{Time.now.strftime('%Y%m%d%H%M%S%3N')}.log")
+    end
+
   end
 end
