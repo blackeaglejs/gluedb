@@ -12,7 +12,7 @@ module EnrollmentAction
         begin
           return policy_to_term.terminate_as_of(termination.subscriber_end)
         rescue Exception=>e
-          enrollment_action_logger.write(e)
+          enrollment_action_logger.info(e)
         end
       end
       true
