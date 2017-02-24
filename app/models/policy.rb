@@ -578,12 +578,17 @@ class Policy
   end
 
   def terminate_as_of(term_date)
+
     self.aasm_state = "hbx_terminated"
     self.enrollees.each do |en|
-      if en.coverage_end.blank? || (!en.coverage_end.blank? && (en.coverage_end > term_date))
-        en.coverage_end = term_date
-        en.coverage_status = "inactive"
-        en.employment_status_code = "terminated"
+      begin
+        if en.coverage_end.blank? || (!en.coverage_end.blank? && (en.coverage_end > term_date))
+          en.coverage_end = term_date
+          en.coverage_status = "inactive"
+          en.employment_status_code = "terminated"
+        end
+      rescue Exception=>e
+        raise "#{self.eg_id} - #{e.inspect}. Current end date is #{en.coverage_end}. Supplied end date is #{term_date}. Backtrace is as follows: #{e.backtrace}"
       end
     end
     self.save
