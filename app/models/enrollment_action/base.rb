@@ -27,25 +27,24 @@ module EnrollmentAction
         ::EnrollmentAction::CarrierSwitchRenewal,
         ::EnrollmentAction::DependentAdd,
         ::EnrollmentAction::DependentDrop,
-        ::EnrollmentAction::InitialEnrollment,
         ::EnrollmentAction::PlanChange,
         ::EnrollmentAction::PlanChangeDependentAdd,
         ::EnrollmentAction::PlanChangeDependentDrop,
         ::EnrollmentAction::RenewalDependentAdd,
         ::EnrollmentAction::RenewalDependentDrop,
+        ::EnrollmentAction::InitialEnrollment,
         ::EnrollmentAction::Termination
       ].detect { |kls| kls.qualifies?(chunk) }
       
       if selected_action
+        puts selected_action.inspect
         selected_action.construct(chunk)
       else
-        puts "====== NO EVENT FOUND ====="
-        puts "Chunk length: #{chunk.length}"
-        chunk.each do |c|
-          puts c.hbx_enrollment_id
-          puts c.event_xml
+        batch_id = SecureRandom.uuid
+        chunk.each_with_index do |c,idx|
+          c.no_event_found!(batch_id, idx)
         end
-        raise "NO MATCH EVENT FOUND"
+        nil
       end
     end
 
@@ -68,11 +67,47 @@ module EnrollmentAction
     end
 
     def drop_not_yet_implemented!
+      idx = 0
+      batch_id = SecureRandom.uuid
       if @termination
-        @termination.drop_not_yet_implemented!(self.class.name.to_s)
+        idx = idx + 1
+        @termination.drop_not_yet_implemented!(self.class.name.to_s, batch_id, idx)
       end
       if @action
-        @action.drop_not_yet_implemented!(self.class.name.to_s)
+        @action.drop_not_yet_implemented!(self.class.name.to_s, batch_id, idx)
+      end
+    end
+
+    def persist_failed!(persist_errors)
+      idx = 0
+      batch_id = SecureRandom.uuid
+      if @termination
+        idx = idx + 1
+        @termination.persist_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+      end
+      if @action
+        @action.persist_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+      end
+    end
+
+    def publish_failed!(publish_errors)
+      idx = 0
+      batch_id = SecureRandom.uuid
+      if @termination
+        idx = idx + 1
+        @termination.publish_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+      end
+      if @action
+        @action.publish_failed!(self.class.name.to_s, publish_errors, batch_id, idx)
+      end
+    end
+
+    def flow_successful!
+      if @termination
+        @termination.flow_successful!(self.class.name.to_s)
+      end
+      if @action
+        @action.flow_successful!(self.class.name.to_s)
       end
     end
 
@@ -87,6 +122,19 @@ module EnrollmentAction
 
     def self.lookup_ancestors
       [self]
+    end
+
+    def publish_edi(amqp_connection, event_xml, hbx_enrollment_id, employer_id)
+      publisher = Publishers::TradingPartnerEdi.new(amqp_connection, event_xml)
+      publish_result = false
+      publish_result = publisher.publish
+      if publish_result
+         publisher2 = Publishers::TradingPartnerLegacyCv.new(amqp_connection, event_xml, hbx_enrollment_id, employer_id)
+         unless publisher2.publish
+           return [false, publisher2.errors.to_hash]
+         end
+      end
+      [publish_result, publisher.errors.to_hash]
     end
   end
 end

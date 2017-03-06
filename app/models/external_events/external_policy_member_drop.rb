@@ -1,15 +1,16 @@
 module ExternalEvents
-  class ExternalPolicy
+  class ExternalPolicyMemberDrop
     attr_reader :policy_node
-    attr_reader :plan
+    attr_reader :dropped_member_ids
+    attr_reader :policy_to_update
 
     include Handlers::EnrollmentEventXmlHelper
 
     # p_node : Openhbx::Cv2::Policy
-    # p_record : Plan
-    def initialize(p_node, p_record)
+    def initialize(pol_to_change, p_node, d_member_ids)
       @policy_node = p_node
-      @plan = p_record
+      @dropped_member_ids = d_member_ids
+      @policy_to_update = pol_to_change
     end
 
     def extract_pre_amt_tot
@@ -95,17 +96,16 @@ module ExternalEvents
       "child"
     end
 
-    def build_enrollee(policy, enrollee_node)
+    def term_enrollee(policy, enrollee_node)
       member_id = extract_member_id(enrollee_node)
-      policy.enrollees << Enrollee.new({
-        :m_id => member_id,
-        :rel_code => extract_rel_code(enrollee_node),
-        :ben_stat => "active",
-        :emp_state => "active",
-        :coverage_start => extract_enrollee_start(enrollee_node),
-        :pre_amt => extract_enrollee_premium(enrollee_node)
-      })
-      policy.save!
+      if @dropped_member_ids.include?(member_id)
+        enrollee = policy.enrollees.detect { |en| en.m_id == member_id }
+        enrollee.coverage_end = extract_enrollee_end(enrollee_node)
+        enrollee.coverage_status = "inactive"
+        enrollee.employment_status_code = "terminated"
+        enrollee.save!
+        policy.save!
+      end
     end
 
     def subscriber_id
@@ -115,37 +115,15 @@ module ExternalEvents
       end
     end
 
-    def build_subscriber(policy)
-      sub_node = extract_subscriber(@policy_node)
-      policy.enrollees << Enrollee.new({
-        :m_id => subscriber_id,
-        :rel_code => "self",
-        :ben_stat => "active",
-        :emp_state => "active",
-        :coverage_start => extract_enrollee_start(sub_node),
-        :pre_amt => extract_enrollee_premium(sub_node)
-      })
-      policy.save!
-    end
-
-    def policy_exists?
-      eg_id = extract_enrollment_group_id(@policy_node)
-      Policy.where(:hbx_enrollment_ids => eg_id).count > 0
-    end
-
     def persist
-      return true if policy_exists?
-      policy = Policy.create!({
-        :plan => @plan,
-        :carrier_id => @plan.carrier_id,
-        :eg_id => extract_enrollment_group_id(@policy_node),
+      pol = policy_to_update
+      pol.update_attributes({
         :pre_amt_tot => extract_pre_amt_tot,
         :tot_res_amt => extract_tot_res_amt
       }.merge(extract_other_financials))
-      build_subscriber(policy)
       other_enrollees = @policy_node.enrollees.reject { |en| en.subscriber? }
       other_enrollees.each do |en|
-        build_enrollee(policy, en)
+        term_enrollee(pol, en)
       end
       true
     end
