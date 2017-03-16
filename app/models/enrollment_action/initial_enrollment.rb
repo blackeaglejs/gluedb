@@ -17,20 +17,16 @@ module EnrollmentAction
       unless members_persisted.all?
         return false
       end
-      ep = ExternalEvents::ExternalPolicy.new(action.policy_cv)
+      ep = ExternalEvents::ExternalPolicy.new(action.policy_cv, action.existing_plan)
       ep.persist
     end
 
     def publish
       amqp_connection = action.event_responder.connection
-      publisher = Publishers::TradingPartnerEdi.new(amqp_connection, action.event_xml)
-      publish_result = false
-      publish_result = publisher.publish
-      if publish_result
-         publisher2 = Publishers::TradingPartnerLegacyCv.new(amqp_connection, action.event_xml, action.hbx_enrollment_id, action.employer_hbx_id)
-         publish_result = publisher2.publish
-      end
-      publish_result
+      action_helper = EnrollmentAction::ActionPublishHelper.new(action.event_xml)
+      action_helper.set_event_action("urn:openhbx:terms:v1:enrollment#initial")
+      action_helper.keep_member_ends([])
+      publish_edi(amqp_connection, action_helper.to_xml, action.hbx_enrollment_id, action.employer_hbx_id)
     end
   end
 end
