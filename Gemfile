@@ -26,6 +26,7 @@ end
 
 group 'development', 'test' do
   gem 'rspec', '3.3.0'
+  gem 'rspec-core', '3.3.2'
 end
 
 group :development, :assets, :test do
@@ -50,7 +51,6 @@ end
 group :test do
   gem 'test-unit'
 	gem 'mongoid-rspec'
-  gem 'rspec-core', '3.3.2'
   gem 'rspec-rails', '3.3.3'
   gem 'rspec-collection_matchers', '1.1.2'
   gem 'capybara', '2.4.4'
@@ -92,3 +92,4 @@ gem 'forkr', '1.0.2'
 gem 'edi_codec', git: "git@github.com:dchbx/edi_codec.git"
 gem 'ibsciss-middleware', git: "https://github.com/dchbx/ruby-middleware.git", :require => "middleware"
 gem 'rgl', '0.5.2'
+gem 'aws-sdk'
