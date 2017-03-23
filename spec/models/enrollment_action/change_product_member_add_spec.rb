@@ -1,28 +1,42 @@
 require "rails_helper"
 
-describe EnrollmentAction::DependentAdd, "given an enrollment event set that:
+describe EnrollmentAction::PlanChangeDependentAdd, "given an enrollment event set that:
 - has two enrollments
 - the first enrollment is a cancel for plan A
 - the second enrollment is a start for plan A
-- the second enrollment has more members" do
+- the second enrollment has more members
+- the second enrollment has a different product" do
 
-  let(:plan) { instance_double(Plan, :id => 1) }
+  let(:old_plan) { instance_double(Plan, :id => 1, :carrier_id => "1234") }
+  let(:new_plan) { instance_double(Plan, :id => 2, :carrier_id => "1234") }
+  let(:new_plan_different_carrier) { instance_double(Plan, :id => 3, :carrier_id => "4567") }
 
   let(:member_ids_1) { [1,2] }
   let(:member_ids_2) { [1,2,3] }
 
-  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, :existing_plan => plan, :all_member_ids => member_ids_1) }
-  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, :existing_plan => plan, :all_member_ids => member_ids_2) }
+  let(:event_1) { instance_double(ExternalEvents::EnrollmentEventNotification, :existing_plan => old_plan, :all_member_ids => member_ids_1) }
+  let(:event_2) { instance_double(ExternalEvents::EnrollmentEventNotification, :existing_plan => new_plan, :all_member_ids => member_ids_2) }
+  let(:event_3) { instance_double(ExternalEvents::EnrollmentEventNotification, :existing_plan => new_plan_different_carrier, :all_member_ids => member_ids_2) }
   let(:event_set) { [event_1, event_2] }
+  let(:event_set_different_carrier) { [event_1, event_3] }
 
-  subject { EnrollmentAction::DependentAdd }
+  subject { EnrollmentAction::PlanChangeDependentAdd }
 
   it "qualifies" do
     expect(subject.qualifies?(event_set)).to be_truthy
   end
+
+  it "does not qualify because of different carriers" do
+    expect(subject.qualifies?(event_set_different_carrier)).to be_falsey
+  end
+
+  it "does not qualify because chunk contains only one event" do
+    expect(subject.qualifies?(event_set.take(1))).to be_falsey
+  end
+
 end
 
-describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, being persisted" do
+describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment set, being persisted" do
   let(:member_primary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 1) }
   let(:member_secondary) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 2) }
   let(:member_new) { instance_double(Openhbx::Cv2::EnrolleeMember, id: 3) }
@@ -52,11 +66,10 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     :all_member_ids => [1,2]
     ) }
 
-  let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicyMemberAdd) }
-
+  let(:policy_updater) { instance_double(ExternalEvents::ExternalPolicy) }
 
   subject do
-    EnrollmentAction::DependentAdd.new(termination_event, dependent_add_event)
+    EnrollmentAction::PlanChangeDependentAdd.new(termination_event, dependent_add_event)
   end
 
   before :each do
@@ -64,9 +77,10 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_secondary).and_return(secondary_db_record)
     allow(ExternalEvents::ExternalMember).to receive(:new).with(member_new).and_return(new_db_record)
 
-    allow(policy).to receive(:save!).and_return(true)
-    allow(ExternalEvents::ExternalPolicyMemberAdd).to receive(:new).with(policy, new_policy_cv, [3]).and_return(policy_updater)
+    allow(ExternalEvents::ExternalPolicy).to receive(:new).with(new_policy_cv, plan).and_return(policy_updater)
     allow(policy_updater).to receive(:persist).and_return(true)
+    allow(termination_event.existing_policy).to receive(:terminate_as_of).and_return(true)
+    allow(termination_event).to receive(:subscriber_end).and_return(false)
   end
 
   it "successfully creates the new policy" do
@@ -74,7 +88,8 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
   end
 end
 
-describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, being published" do
+
+describe EnrollmentAction::PlanChangeDependentAdd, "given a qualified enrollment set, being published" do
   let(:amqp_connection) { double }
   let(:event_xml) { double }
   let(:event_responder) { instance_double(::ExternalEvents::EventResponder, :connection => amqp_connection) }
@@ -88,7 +103,8 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
     ::ExternalEvents::EnrollmentEventNotification,
     :event_xml => event_xml,
     :all_member_ids => [1,2],
-    :hbx_enrollment_id => 2
+    :hbx_enrollment_id => 2,
+    :employer_hbx_id => 1
   ) }
   let(:termination_event) { instance_double(
     ::ExternalEvents::EnrollmentEventNotification,
@@ -107,25 +123,18 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
 
   before :each do
     allow(EnrollmentAction::ActionPublishHelper).to receive(:new).with(event_xml).and_return(action_publish_helper)
-    allow(action_publish_helper).to receive(:set_policy_id).with(1).and_return(true)
     allow(action_publish_helper).to receive(:filter_affected_members).with([2]).and_return(true)
-    allow(action_publish_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_member_add")
-    allow(action_publish_helper).to receive(:set_member_starts).with({ 1 => :one_month_ago, 2 => :one_month_ago })
+    allow(action_publish_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_product_member_add")
     allow(action_publish_helper).to receive(:keep_member_ends).with([])
-    allow(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
+    allow(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, dependent_add_event.hbx_enrollment_id, termination_event.employer_hbx_id)
   end
 
   subject do
-    EnrollmentAction::DependentAdd.new(termination_event, dependent_add_event)
+    EnrollmentAction::PlanChangeDependentAdd.new(termination_event, dependent_add_event)
   end
 
   it "publishes an event of type add dependents" do
-    expect(action_publish_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_member_add")
-    subject.publish
-  end
-
-  it "sets member start dates" do
-    expect(action_publish_helper).to receive(:set_member_starts).with({ 1 => :one_month_ago, 2 => :one_month_ago })
+    expect(action_publish_helper).to receive(:set_event_action).with("urn:openhbx:terms:v1:enrollment#change_product_member_add")
     subject.publish
   end
 
@@ -135,7 +144,7 @@ describe EnrollmentAction::DependentAdd, "given a qualified enrollment set, bein
   end
 
   it "publishes resulting xml to edi" do
-    expect(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, termination_event.hbx_enrollment_id, termination_event.employer_hbx_id)
+    expect(subject).to receive(:publish_edi).with(amqp_connection, action_helper_result_xml, dependent_add_event.hbx_enrollment_id, dependent_add_event.employer_hbx_id)
     subject.publish
   end
 end
