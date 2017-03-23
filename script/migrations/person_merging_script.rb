@@ -45,7 +45,7 @@ end
 keep_phones = person_to_keep.phones
 delete_phones = person_to_delete.phones
 
-if keep_addresses.size == 0 && delete_phones.size > 0
+if keep_phones.size == 0 && delete_phones.size > 0
 	delete_phones.each do |phone|
 		person_to_keep.phones.push(phone)
 		phone.save

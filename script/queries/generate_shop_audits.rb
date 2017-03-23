@@ -1,11 +1,11 @@
 carrier_ids = Carrier.where({
- :abbrev => {"$eq" => "GHMSI"}
+ :abbrev => {"$nin" => ["KFMASI","GHMSI"]}
 }).map(&:id)
 
 puts carrier_ids
 
-active_start = Date.new(2015,7,31)
-active_end = Date.new(2016,7,31)
+active_start = Date.new(2016,3,31)
+active_end = Date.new(2017,3,31)
 
 plan_ids = Plan.where(:carrier_id => {"$in" => carrier_ids}).map(&:id)
 
@@ -39,18 +39,21 @@ end
 
 def current_plan_year(employer)
   today = Time.now.to_date
+  correct_plan_years = []
   employer.plan_years.each do |plan_year|
     py_start = plan_year.start_date
     py_end = plan_year.end_date
     date_range = (py_start..py_end)
     if date_range.include?(today)
-      return plan_year
+      correct_plan_years << plan_year
     end
   end
+  return correct_plan_years[0]
 end
 
 def in_current_plan_year?(policy,employer)
   plan_year = current_plan_year(employer)
+  return false if plan_year.blank?
   policy_start_date = policy.subscriber.coverage_start
   py_start = plan_year.start_date
   py_end = plan_year.end_date
@@ -69,10 +72,11 @@ Caches::MongoidCache.allocate(Carrier)
 Caches::MongoidCache.allocate(Employer)
 
 eligible_pols.each do |pol|
+  begin
   if !pol.canceled?
     if !(pol.subscriber.coverage_start > active_end)
       employer = Caches::MongoidCache.lookup(Employer, pol.employer_id) {pol.employer}
-      if cong_employer_ids.include?(pol.employer_id) and pol.subscriber.coverage_start.year != 2016
+      if cong_employer_ids.include?(pol.employer_id) && pol.subscriber.coverage_start.year != 2017
         next
       elsif in_current_plan_year?(pol,employer) == false
         next
@@ -97,5 +101,9 @@ eligible_pols.each do |pol|
         out_f.close
       end
     end
+  end
+  rescue Exception=>e
+    puts "#{pol._id} - #{e.inspect}"
+    next
   end
 end
