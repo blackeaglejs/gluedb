@@ -16,9 +16,13 @@ end
 count = 0
 
 no_authority_ids.each do |nap|
+  begin
   count += 1
   nap.authority_member_id = nap.members.first.hbx_member_id
   nap.save!
+  rescue Exception=>e
+    puts "#{nap.inspect} - #{e.inspect}"
+  end
 end
 
 puts count
