@@ -3,8 +3,7 @@ require File.join(Rails.root, "app", "models", "premiums", "enrollment_cv_proxy.
 class Api::V2::PremiumCalculatorController < ApplicationController
 #  skip_before_filter :authenticate_user_from_token!
 #  skip_before_filter :authenticate_me!
-#  protect_from_forgery :except => [:create]
-
+  protect_from_forgery :except => [:create]
 
   def calculate
 
