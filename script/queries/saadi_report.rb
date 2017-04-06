@@ -89,7 +89,7 @@ CSV.open("saadi_report_#{timestamp}.csv", 'w') do |csv|
                 plan.coverage_type, plan.hios_plan_id, plan.name, carrier.name, 
                 en.m_id, en.subscriber?, per.name_first, per.name_middle, per.name_last, member.dob.strftime("%Y%m%d"), 
                 member.ssn, member.gender, en.rel_code, 
-                en.coverage_start.strftime("%m-%d-%Y"), (en.coverage_end.strftime("%m-%d-%Y") unless en.coverage_end.blank?),
+                (en.coverage_start.strftime("%m-%d-%Y") unless en.coverage_start.blank?), (en.coverage_end.strftime("%m-%d-%Y") unless en.coverage_end.blank?),
                 pol.updated_at.strftime("%m-%d-%Y %I:%M:%S %p %Z"), paid_at, paid_amount.to_s]
       end
     end
