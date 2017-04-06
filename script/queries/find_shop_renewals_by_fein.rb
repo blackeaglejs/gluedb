@@ -3,11 +3,11 @@ feins = %w()
 
 effective_date = Date.new(2017,1,1)
 
-employers = Employer.where(:fein => {"$in" => congressional_feins}).map(&:id)
+employers = Employer.where(:fein => {"$in" => feins}).map(&:id)
 
 plans_2017 = Plan.where(year: 2017).map(&:id)
 
-policies_2017 = Policy.where(:employer_id => {"$in" => congressional_employers},
+policies_2017 = Policy.where(:employer_id => {"$in" => employers},
                                            :plan_id => {"$in" => plans_2017},
                                            :enrollees => {"$elemMatch" => {
                                               :rel_code => "self",
