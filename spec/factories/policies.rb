@@ -12,7 +12,8 @@ FactoryGirl.define do
     plan
 
     after(:create) do |p, evaluator|
-      create_list(:enrollee, 2, policy: p)
+      create_list(:enrollee, 1, policy: p)
+      create_list(:spouse_enrollee, 1, policy: p)
     end
 
     trait :shop do
