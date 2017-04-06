@@ -1,11 +1,11 @@
 carrier_ids = Carrier.where({
- :abbrev => {"$nin" => ["KFMASI","GHMSI"]}
+ :abbrev => {"$in" => ["GHMSI"]}
 }).map(&:id)
 
 puts carrier_ids
 
-active_start = Date.new(2016,3,31)
-active_end = Date.new(2017,3,31)
+active_start = Date.new(2016,4,30)
+active_end = Date.new(2017,4,30)
 
 plan_ids = Plan.where(:carrier_id => {"$in" => carrier_ids}).map(&:id)
 
