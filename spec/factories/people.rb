@@ -21,6 +21,10 @@ FactoryGirl.define do
       name_last ' '
     end
 
+    trait :with_bad_phone do
+      phones { [FactoryGirl.build(:phone, :bad_phone_number)] }
+    end
+
   factory :invalid_person, traits: [:without_first_name,
     :without_last_name]
   end

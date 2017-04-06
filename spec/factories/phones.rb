@@ -5,4 +5,8 @@ FactoryGirl.define do
     sequence(:extension) { |n| "#{n}"}
     primary true
   end
+
+  trait :bad_phone_number do 
+    phone_number '0'
+  end
 end
