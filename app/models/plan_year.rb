@@ -79,4 +79,9 @@ class PlanYear
   def attribute_matches?(attribute, other)
     self[attribute] == other[attribute]
   end
+
+  def overlaps?(other_plan_year)
+    (start_date - other_plan_year.end_date) * (other_plan_year.start_date - end_date) >= 0
+  end
+
 end
