@@ -78,7 +78,7 @@ eligible_pols.each do |pol|
       employer = Caches::MongoidCache.lookup(Employer, pol.employer_id) {pol.employer}
       if cong_employer_ids.include?(pol.employer_id) && pol.subscriber.coverage_start.year != 2017
         next
-      elsif in_current_plan_year?(pol,employer) == false
+      elsif in_current_plan_year?(pol,employer,cutoff_date,active_start,active_end) == false
         next
       end
       subscriber_id = pol.subscriber.m_id
