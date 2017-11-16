@@ -35,6 +35,7 @@ class Policy
   field :carrier_specific_plan_id, type: String
   field :rating_area, type: String
   field :composite_rating_tier, type: String
+  field :cobra_eligibility_date, type: Date
 
   validates_presence_of :eg_id
   validates_presence_of :pre_amt_tot
@@ -185,6 +186,10 @@ class Policy
 
   def subscriber
     enrollees.detect { |m| m.relationship_status_code == "self" }
+  end
+
+  def is_cobra?
+    subscriber.ben_stat == 'cobra' if is_shop?
   end
 
   def spouse
