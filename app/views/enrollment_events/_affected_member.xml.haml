@@ -22,6 +22,7 @@
       %sex= "urn:openhbx:terms:v1:gender##{affected_member.old_gender}"
       %birth_date= simple_date_for(affected_member.old_dob)
   %is_subscriber= enrollee.subscriber?
+  %benefit_status= "urn:openhbx:terms:v1:benefit_status##{enrollee.ben_stat}"
   %benefit
     %premium_amount= enrollee.pre_amt.round(2)
     %begin_date= simple_date_for(enrollee.coverage_start)
