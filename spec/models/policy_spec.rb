@@ -499,9 +499,9 @@ describe Policy, :dbclean => :after_each do
     it "should set premium, responsible amount, aptc from latest aptc credit" do
       subject.check_multi_aptc
 
-      expect(subject.applied_aptc).to eq(125.0)
-      expect(subject.pre_amt_tot).to eq(300.0) 
-      expect(subject.tot_res_amt).to eq(175.0)
+      expect(subject.applied_aptc).to eq(100.0)
+      expect(subject.pre_amt_tot).to eq(200.0) 
+      expect(subject.tot_res_amt).to eq(100.0)
     end
   end
 

@@ -29,7 +29,7 @@ emp_ids = Employer.where(:fein => {"$nin" => congress_feins }).map(&:id)
 pols = Policy.where({
     :enrollees => {"$elemMatch" => {
           :rel_code => "self"
-    }}, :employer_id => { "$in" => emp_ids } })
+    }}, :employer_id => { "$in" => emp_ids } }).no_timeout
 
 Caches::MongoidCache.allocate(Plan)
 Caches::MongoidCache.allocate(Carrier)
