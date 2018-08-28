@@ -28,6 +28,7 @@ module EnrollmentAction
         ::EnrollmentAction::DependentDropAndAdd,
         ::EnrollmentAction::DependentAdd,
         ::EnrollmentAction::DependentDrop,
+        ::EnrollmentAction::PlanChangeDependentDropAndAdd,
         ::EnrollmentAction::PlanChange,
         ::EnrollmentAction::PlanChangeDependentAdd,
         ::EnrollmentAction::PlanChangeDependentDrop,

@@ -2,11 +2,13 @@ module EnrollmentAction
   class PlanChangeDependentDropAndAdd < Base
     extend PlanComparisonHelper
     extend DependentComparisonHelper
+    include TerminationDateHelper
 
     def self.qualifies?(chunk)
       return false if chunk.length < 2
       return false if same_plan?(chunk)
       return false if carriers_are_different?(chunk)
+      dependents_added_and_dropped?(chunk)
     end
 
     def added_dependents
@@ -24,6 +26,7 @@ module EnrollmentAction
       pol_updater.use_totals_from(action.policy_cv)
       pol_updater.persist
 
+      members = action.policy_cv.enrollees.map(&:member)
       members_persisted = members.map do |mem|
         em = ExternalEvents::ExternalMember.new(mem)
         em.persist
