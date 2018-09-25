@@ -3,8 +3,9 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class UpdateTotalResponsibleAmount < MongoidMigrationTask
 
   def migrate
-    policy = Policy.find(ENV['policy_id'])
-    if ENV['policy_id'].blank?
+    if ENV['policy_id'].present?
+      policy = Policy.find(ENV['policy_id'])
+    elsif ENV['policy_id'].blank? && ENV['eg_id'].present?
       policy = Policy.where(eg_id: ENV['eg_id']).first
     end
     if policy.present? && policy.aptc_credits.empty?
