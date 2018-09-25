@@ -1,9 +1,12 @@
-# Changes the kind field on a policy to "coverall"
+# Updates premium amounts on a policy.
 require File.join(Rails.root, "lib/mongoid_migration_task")
 class UpdateTotalResponsibleAmount < MongoidMigrationTask
 
   def migrate
-    policy = Policy.where(eg_id: ENV['eg_id']).first
+    policy = Policy.find(ENV['policy_id'])
+    if ENV['policy_id'].blank?
+      policy = Policy.where(eg_id: ENV['eg_id']).first
+    end
     if policy.present? && policy.aptc_credits.empty?
       total_responsible_amount= ENV['total_responsible_amount']
       premium_amount_total = ENV['premium_amount_total']
