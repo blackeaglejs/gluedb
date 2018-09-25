@@ -17,6 +17,7 @@ describe RemoveEnrolleeFromEnrollment, dbclean: :after_each do
   describe "changing the end dates for a policy" do 
     before(:each) do 
       allow(ENV).to receive(:[]).with("eg_id").and_return(policy.eg_id)
+      allow(ENV).to receive(:[]).with("policy_id").and_return(policy.id)
       removal_enrollee.update_attributes(:m_id => '4624327')
       allow(ENV).to receive(:[]).with("m_id").and_return('4624327')
     end

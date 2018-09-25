@@ -7,7 +7,10 @@ class RemoveEnrolleeFromEnrollment < MongoidMigrationTask
   end
 
   def migrate
-    policy = Policy.where(eg_id: ENV['eg_id']).first
+    policy = Policy.find(ENV['policy_id'])
+    if ENV['policy_id'].blank?
+      policy = Policy.where(eg_id: ENV['eg_id']).first
+    end
     (puts "No hbx_enrollment was found with the given hbx_id" unless Rails.env.test?) if policy.blank?
 
     m_id = ENV['m_id']
