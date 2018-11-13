@@ -160,6 +160,15 @@ module ExternalEvents
                          end
     end
 
+    def handle_aptc_changes(policy)
+        new_aptc_date = policy.enrollees.map(&:coverage_end).uniq.compact.sort.last + 1.day
+        tot_res_amt = policy.tot_res_amt
+        pre_amt_tot = policy.pre_amt_tot
+        aptc_amt = policy.applied_aptc
+        policy.set_aptc_effective_on(new_aptc_date, aptc_amt, pre_amt_tot, tot_res_amt)
+        policy.save!
+    end
+
     def persist
       pol = policy_to_update
       pol.update_attributes!({
@@ -170,6 +179,7 @@ module ExternalEvents
       @policy_node.enrollees.each do |en|
         term_enrollee(pol, en)
       end
+      handle_aptc_changes(pol) unless pol.is_shop?
       true
     end
   end
